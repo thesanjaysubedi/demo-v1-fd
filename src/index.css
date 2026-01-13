@@ -1,3 +1,28 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Dark themed scrollbar (opt-in via className="scrollbar-slate") */
+.scrollbar-slate {
+  scrollbar-width: thin; /* Firefox */
+  scrollbar-color: rgba(99, 102, 241, 0.55) rgba(2, 6, 23, 0.85); /* thumb track */
+}
+
+.scrollbar-slate::-webkit-scrollbar {
+  width: 10px;
+}
+
+.scrollbar-slate::-webkit-scrollbar-track {
+  background: rgba(2, 6, 23, 0.85);
+  border-radius: 999px;
+}
+
+.scrollbar-slate::-webkit-scrollbar-thumb {
+  background: rgba(99, 102, 241, 0.55);
+  border-radius: 999px;
+  border: 2px solid rgba(2, 6, 23, 0.85);
+}
+
+.scrollbar-slate::-webkit-scrollbar-thumb:hover {
+  background: rgba(129, 140, 248, 0.75);
+}

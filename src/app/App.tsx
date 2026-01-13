@@ -8,7 +8,7 @@ export default function App() {
           <h1 className="text-4xl sm:text-5xl font-semibold tracking-tight">
             Hello from Sanjay
           </h1>
-          <p className="mt-3 text-slate-300">Vite + React + Tailwind CSS v3</p>
+          <p className="mt-3 text-slate-300">Something else</p>
         </header>
 
         <section className="mt-10">

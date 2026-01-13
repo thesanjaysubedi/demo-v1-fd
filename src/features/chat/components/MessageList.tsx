@@ -1,7 +1,31 @@
+import { useEffect, useMemo, useState } from 'react'
 import type { ChatMessage } from '../types'
 
-function formatTime(ts: number) {
-  return new Date(ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+type RelativeUnit = 'second' | 'minute' | 'hour' | 'day' | 'month' | 'year'
+
+function formatTimeAgo(opts: { sentAt: number; now: number; rtf: Intl.RelativeTimeFormat }) {
+  const diffSeconds = Math.round((opts.sentAt - opts.now) / 1000) // negative for past
+  const abs = Math.abs(diffSeconds)
+
+  if (abs < 5) return 'just now'
+
+  const table: Array<{ unit: RelativeUnit; seconds: number }> = [
+    { unit: 'year', seconds: 60 * 60 * 24 * 365 },
+    { unit: 'month', seconds: 60 * 60 * 24 * 30 },
+    { unit: 'day', seconds: 60 * 60 * 24 },
+    { unit: 'hour', seconds: 60 * 60 },
+    { unit: 'minute', seconds: 60 },
+    { unit: 'second', seconds: 1 },
+  ]
+
+  for (const { unit, seconds } of table) {
+    if (abs >= seconds || unit === 'second') {
+      const value = Math.trunc(diffSeconds / seconds)
+      return opts.rtf.format(value, unit)
+    }
+  }
+
+  return opts.rtf.format(diffSeconds, 'second')
 }
 
 export function MessageList(props: {
@@ -9,6 +33,14 @@ export function MessageList(props: {
   me: string
 }) {
   const { messages, me } = props
+  const [now, setNow] = useState(() => Date.now())
+  const rtf = useMemo(() => new Intl.RelativeTimeFormat(undefined, { numeric: 'auto' }), [])
+
+  // Keeps "x minutes ago" fresh while the user is looking at the chat.
+  useEffect(() => {
+    const id = window.setInterval(() => setNow(Date.now()), 30_000)
+    return () => window.clearInterval(id)
+  }, [])
 
   if (messages.length === 0) {
     return (
@@ -36,7 +68,9 @@ export function MessageList(props: {
                 <span className="text-sm font-semibold text-slate-100">
                   {m.author}
                 </span>
-                <span className="text-xs text-slate-400">{formatTime(m.sentAt)}</span>
+                <span className="text-xs text-slate-400">
+                  {formatTimeAgo({ sentAt: m.sentAt, now, rtf })}
+                </span>
               </div>
               <p className="mt-1 whitespace-pre-wrap break-words text-slate-200">
                 {m.text}
